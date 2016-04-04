@@ -39,15 +39,15 @@ def foo():
    updateitem(itemid[1],appended_commit)
 
    if message.startswith("Fixed"):
-      itemworkflow = getworkflow(itemid[1])
-      print itemworkflow
-      workItem=getworkflowActivity(workflowid)
-      print workItem
+      workflowid = getworkflow(itemid[1])
+
+      dataitems=getworkflowActivity(workflowid)
+      print dataitems
       
-      acknowlege = moveworkflow("17811")
+      acknowlege = moveworkflow(dataitems[0].get('Id'),dataitems[0].get('ActivityId'),dataitems[0]['Participant'].get('GlobalId'))
       print acknowlege
 
-   return test
+   return "Ok"
 
 
 def updateitem(itemid,commithash):
@@ -125,14 +125,16 @@ def getworkflow(itemid):
    response = urllib2.urlopen(req)
    workflow = sj.loads(response.read())
    print workflow
-   return "ok"
+   workflowid = workflow[0]['Activities'][0].get('WorkflowId')
+   print workflowid
+   return workflowid
 
 
 
 
-def getworflowActivity(workflowId):
+def getworkflowActivity(workflowId):
    print "i am in activity"
-   url = baseurl + 'workflow/getactivities?workflowId=' + workflowId + '&status=4'
+   url = baseurl + 'workflow/getactivities?workflowId=' + str(workflowId) + '&status=3'
    headers = {
                 "Authorization" : "key=30202176A1B8E4AB3A042E3660785A767ABEC2194F538594FD25C7A27FCC905F"
            }
@@ -143,14 +145,20 @@ def getworflowActivity(workflowId):
    req = urllib2.Request(url, headers=headers)
    response = urllib2.urlopen(req)
    activity = sj.loads(response.read())
-   print activity
-   return "ok"
+   workitems = activity[0].get('WorkItems')
+   return workitems
 
 #data need to confirm with prasanna
-def moveworkflow(data):
+def moveworkflow(workitemid,activityid,userid):
    print " i am move workflow"
    url = baseurl + 'workflow/performaction'
-   values = {"WorkItemId":data}
+   values = {
+                "WorkItemId" : workitemid ,
+                "ActivityId" :  activityid,
+                "Action"  :"Acknowledge",
+                "GlobalUserId" : userid
+
+            }
    headers = {
             "content-type" : "application/json",
             "accept": "application/json",
@@ -169,7 +177,7 @@ def moveworkflow(data):
    return the_page
 
 if __name__ == '__main__':
-    app.run(host="10.49.0.249")
+    app.run()
 
 
 
