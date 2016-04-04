@@ -24,6 +24,7 @@ def foo():
      
    message=format(data["head_commit"]["message"])
    print message 
+
    timestamp=format(data["head_commit"]["timestamp"])
    print timestamp  
    id=message.split()
@@ -33,6 +34,7 @@ def foo():
    lastcommit=getlastcommit(itemid[1])
    appended_commit=lastcommit+"^"+timestamp+"^"+data["after"]
    print appended_commit
+
 
    updateitem(itemid[1],appended_commit)
 
@@ -67,11 +69,13 @@ def updateitem(itemid,commithash):
            }
 
    print  url
+
    req = urllib2.Request(url,data=sj.dumps(values), headers=headers)
    response = urllib2.urlopen(req)
 
    the_page = sj.loads(response.read())
    print the_page
+
    return the_page
   
 def getlastcommit(id):
@@ -92,13 +96,19 @@ def getlastcommit(id):
              "Authorization" : "key=30202176A1B8E4AB3A042E3660785A767ABEC2194F538594FD25C7A27FCC905F"
            }
    print url
+
+
+
    req = urllib2.Request(url, data=sj.dumps(values), headers=headers)
    response = urllib2.urlopen(req)
 
    oldcommit = sj.loads(response.read())
+
    print oldcommit
    mylist = oldcommit.get('Items')
    print mylist
+
+   
    commithash=mylist[0]["ItemData"].get('mdc5d57e962517a413a968b4145fc4707ec_CommitHash')
    print  commithash
 
@@ -126,7 +136,10 @@ def getworflowActivity(workflowId):
    headers = {
                 "Authorization" : "key=30202176A1B8E4AB3A042E3660785A767ABEC2194F538594FD25C7A27FCC905F"
            }
+
    print url
+
+
    req = urllib2.Request(url, headers=headers)
    response = urllib2.urlopen(req)
    activity = sj.loads(response.read())
@@ -143,7 +156,11 @@ def moveworkflow(data):
             "accept": "application/json",
              "Authorization" : "key=30202176A1B8E4AB3A042E3660785A767ABEC2194F538594FD25C7A27FCC905F"
            }
+
    print url
+
+
+
    req = urllib2.Request(url,data=sj.dumps(values), headers=headers)
    response = urllib2.urlopen(req)
 
