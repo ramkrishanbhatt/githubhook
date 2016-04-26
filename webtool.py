@@ -126,7 +126,7 @@ def getworkflow(itemid):
     print "i am in workflow"
     url = baseurl + 'workflow/getworkflows?itemid=' + itemid
     headers = {
-        "Authorization": "key=30202176A1B8E4AB3A042E3660785A767ABEC2194F538594FD25C7A27FCC905F"
+        "Authorization": accessToken
     }
     print url
     req = urllib2.Request(url, headers=headers)
