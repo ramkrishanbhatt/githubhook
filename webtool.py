@@ -13,6 +13,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('payload')
 
 baseurl = "https://iqhomedev.smartappbeta.com/EnterpriseDesktop/api/v1/"
+accessToken = "key=30202176A1B8E4AB3A042E3660785A767ABEC2194F538594FD25C7A27FCC905F"
 
 app = Flask(__name__)
 
@@ -21,7 +22,7 @@ app = Flask(__name__)
 def foo():
     args = parser.parse_args()
     data = json.loads(args['payload'])
-    curruntcommits=data["commits"]
+    curruntcommits = data["commits"]
     print "Hook call me"
 
     for commit in curruntcommits:
@@ -33,14 +34,14 @@ def foo():
             stringtime = timecommit.encode('ascii', 'ignore')
             mtimes = datetime.strptime(stringtime, '%Y-%m-%dT%H:%M:%S+00:00')
             commiturl = commit['url']
-            appended_commit = lastcommit + mtimes.strftime('  %d/%m/%Y %I:%M %p ') + format(commiturl)
+            appended_commit = lastcommit + mtimes.strftime('  %d/%m/%Y %I:%M %p ') + "<a  href=" + commiturl + ">" + \
+                              commit['id'] + "</a>"
             print appended_commit
 
             print commiturl
             updateitem(itemid[1], appended_commit)
 
         if commit["message"].startswith("Fixed"):
-
             workflowid = getworkflow(itemid[1])
 
             dataitems = getworkflowActivity(workflowid)
@@ -72,7 +73,7 @@ def updateitem(itemid, appended_commit):
     headers = {
         "content-type": "application/json",
         "accept": "application/json",
-        "Authorization": "key=30202176A1B8E4AB3A042E3660785A767ABEC2194F538594FD25C7A27FCC905F"
+        "Authorization": accessToken
     }
 
     print  url
@@ -100,7 +101,7 @@ def getlastcommit(id):
     headers = {
         "content-type": "application/json",
         "accept": "application/json",
-        "Authorization": "key=30202176A1B8E4AB3A042E3660785A767ABEC2194F538594FD25C7A27FCC905F"
+        "Authorization": accessToken
     }
     print url
 
@@ -113,7 +114,7 @@ def getlastcommit(id):
     mylist = oldcommit.get('Items')
     print mylist
 
-    commithash = mylist[0]["ItemData"].get('mdc5d57e962517a413a968b4145fc4707ec_CommitHash')
+    commithash = mylist[0]['ItemData'].get('mdc5d57e962517a413a968b4145fc4707ec_ResolutionNotes')
     if not commithash:
         commithash = " "
         return commithash
@@ -141,7 +142,7 @@ def getworkflowActivity(workflowId):
     print "i am in activity"
     url = baseurl + 'workflow/getactivities?workflowId=' + str(workflowId) + '&status=3'
     headers = {
-        "Authorization": "key=30202176A1B8E4AB3A042E3660785A767ABEC2194F538594FD25C7A27FCC905F"
+        "Authorization": accessToken
     }
 
     print url
@@ -151,7 +152,6 @@ def getworkflowActivity(workflowId):
     activity = sj.loads(response.read())
     workitems = activity[0].get('WorkItems')
     return workitems
-
 
 
 def moveworkflow(workitemid, activityid, userid):
@@ -167,7 +167,7 @@ def moveworkflow(workitemid, activityid, userid):
     headers = {
         "content-type": "application/json",
         "accept": "application/json",
-        "Authorization": "key=30202176A1B8E4AB3A042E3660785A767ABEC2194F538594FD25C7A27FCC905F"
+        "Authorization": accessToken
     }
 
     print url
