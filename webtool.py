@@ -1,8 +1,10 @@
-from flask import Flask
-from flask_restful import reqparse, abort, Api, Resource
 import json
+import urllib2
+from datetime import datetime
+
 import simplejson as sj
-import urllib, urllib2
+from flask import Flask
+from flask_restful import reqparse, Api
 
 app = Flask(__name__)
 api = Api(app)
@@ -27,8 +29,14 @@ def foo():
             id = commit["message"].split()
             itemid = id[0].split(":")
             lastcommit = getlastcommit(itemid[1])
-            appended_commit = lastcommit + " # " + format(commit["timestamp"]) + " id = " + format(commit["id"])
+            timecommit = commit['timestamp']
+            stringtime = timecommit.encode('ascii', 'ignore')
+            mtimes = datetime.strptime(stringtime, '%Y-%m-%dT%H:%M:%S+00:00')
+            commiturl = commit['url']
+            appended_commit = lastcommit + mtimes.strftime('  %d/%m/%Y %I:%M %p ') + format(commiturl)
             print appended_commit
+
+            print commiturl
             updateitem(itemid[1], appended_commit)
 
         if commit["message"].startswith("Fixed"):
@@ -48,7 +56,8 @@ def foo():
     return "Ok"
 
 
-def updateitem(itemid, commithash):
+def updateitem(itemid, appended_commit):
+    # type: (object, object) -> object
     url = baseurl + 'smartitems/update'
     values = {
         "ItemId": itemid,
@@ -56,7 +65,7 @@ def updateitem(itemid, commithash):
             {
                 "mdc5d57e962517a413a968b4145fc4707ec":
                     {
-                        "CommitHash": commithash
+                        "ResolutionNotes": appended_commit
                     }
             }
     }
@@ -85,7 +94,7 @@ def getlastcommit(id):
             "FieldName": "ID",
             "FilterValue": id}],
         "Fields": [{
-            "FieldName": "CommitHash",
+            "FieldName": "ResolutionNotes",
             "MDCollectionName": "mdc5d57e962517a413a968b4145fc4707ec"}]
     }
     headers = {
@@ -105,9 +114,11 @@ def getlastcommit(id):
     print mylist
 
     commithash = mylist[0]["ItemData"].get('mdc5d57e962517a413a968b4145fc4707ec_CommitHash')
-    print  commithash
-
-    return commithash
+    if not commithash:
+        commithash = " "
+        return commithash
+    else:
+        return commithash
 
 
 def getworkflow(itemid):
