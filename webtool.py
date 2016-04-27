@@ -28,8 +28,7 @@ def foo():
     for commit in curruntcommits:
         if commit["message"].startswith("Fixed") | commit["message"].startswith("In"):
             id = commit["message"].split()
-            itemid = id[0].split(":")
-            lastcommit = getlastcommit(itemid[1])
+            lastcommit = getlastcommit(id[1])
             timecommit = commit['timestamp']
             stringtime = timecommit.encode('ascii', 'ignore')
             mtimes = datetime.strptime(stringtime, '%Y-%m-%dT%H:%M:%S+00:00')
@@ -39,10 +38,10 @@ def foo():
             print appended_commit
 
             print commiturl
-            updateitem(itemid[1], appended_commit)
+            updateitem(id[1], appended_commit)
 
         if commit["message"].startswith("Fixed"):
-            workflowid = getworkflow(itemid[1])
+            workflowid = getworkflow(id[1])
 
             dataitems = getworkflowActivity(workflowid)
             print dataitems
@@ -58,7 +57,6 @@ def foo():
 
 
 def updateitem(itemid, appended_commit):
-    # type: (object, object) -> object
     url = baseurl + 'smartitems/update'
     values = {
         "ItemId": itemid,
