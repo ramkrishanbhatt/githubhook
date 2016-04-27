@@ -64,7 +64,7 @@ def updateitem(itemid, appended_commit):
             {
                 "mdc5d57e962517a413a968b4145fc4707ec":
                     {
-                        "ResolutionNotes": appended_commit
+                        "flddc327ebe": appended_commit
                     }
             }
     }
