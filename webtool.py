@@ -1,6 +1,7 @@
 import json
 import urllib2
 from datetime import datetime
+import re
 
 import simplejson as sj
 from flask import Flask
@@ -27,8 +28,13 @@ def foo():
 
     for commit in curruntcommits:
         if commit["message"].startswith("Fixed") | commit["message"].startswith("In"):
-            id = commit["message"].split()
-            lastcommit = getlastcommit(id[1])
+            message = commit["message"]
+            guid = re.compile('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', re.I).findall(message)
+            itemguid = guid[0].encode('ascii', 'ignore')
+
+            print itemguid
+
+            lastcommit = getlastcommit(itemguid)
             timecommit = commit['timestamp']
             stringtime = timecommit.encode('ascii', 'ignore')
             mtimes = datetime.strptime(stringtime, '%Y-%m-%dT%H:%M:%S+00:00')
@@ -38,10 +44,10 @@ def foo():
             print appended_commit
 
             print commiturl
-            updateitem(id[1], appended_commit)
+            updateitem(itemguid, appended_commit)
 
         if commit["message"].startswith("Fixed"):
-            workflowid = getworkflow(id[1])
+            workflowid = getworkflow(itemguid)
 
             dataitems = getworkflowActivity(workflowid)
             print dataitems
@@ -56,10 +62,10 @@ def foo():
     return "Ok"
 
 
-def updateitem(itemid, appended_commit):
+def updateitem(itemguid, appended_commit):
     url = baseurl + 'smartitems/update'
     values = {
-        "ItemId": itemid,
+        "ItemId": itemguid,
         "Metadata":
             {
                 "mdc5d57e962517a413a968b4145fc4707ec":
@@ -85,15 +91,15 @@ def updateitem(itemid, appended_commit):
     return the_page
 
 
-def getlastcommit(id):
+def getlastcommit(itemguid):
     url = baseurl + 'smartitems/GetItemsFieldData'
     values = {
         "SmartAppId": "12748436-8128-49a5-a7bb-4f7c1165b515",
         "FilterParams": [{
             "FieldName": "ID",
-            "FilterValue": id}],
+            "FilterValue": itemguid}],
         "Fields": [{
-            "FieldName": "ResolutionNotes",
+            "FieldName": "flddc327ebe",
             "MDCollectionName": "mdc5d57e962517a413a968b4145fc4707ec"}]
     }
     headers = {
@@ -120,9 +126,9 @@ def getlastcommit(id):
         return commithash
 
 
-def getworkflow(itemid):
+def getworkflow(itemguid):
     print "i am in workflow"
-    url = baseurl + 'workflow/getworkflows?itemid=' + itemid
+    url = baseurl + 'workflow/getworkflows?itemid=' + itemguid
     headers = {
         "Authorization": accessToken
     }
