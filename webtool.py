@@ -13,13 +13,10 @@ api = Api(app)
 parser = reqparse.RequestParser()
 parser.add_argument('payload')
 
-baseurl = "https://iqhomedev.smartappbeta.com/EnterpriseDesktop/api/v1/"
-accessToken = "key=30202176A1B8E4AB3A042E3660785A767ABEC2194F538594FD25C7A27FCC905F"
+baseurl = 
+accessToken = 
 
-app = Flask(__name__)
-
-
-@app.route('/', methods=['POST'])
+app.route('/', methods=['POST'])
 def foo():
     args = parser.parse_args()
     data = json.loads(args['payload'])
