@@ -184,3 +184,31 @@ def moveworkflow(workitemid, activityid, userid):
 
 if __name__ == '__main__':
     app.run()
+
+    
+    @app.before_request
+def before_req():
+    """
+    To log the request for each and every transaction
+    :return: Noting
+    """
+    root.warning('****--------------- %s ----------------****', str(time.asctime(time.localtime(time.time()))))
+    root.warning('------------------Request--------------------')
+    root.info(request.json)
+
+
+@app.after_request
+def after_request(response):
+    """
+    To log response of each and every request
+    :param response: Response of the request
+    :return: Response of the request
+    """
+    if request.method == 'OPTIONS' or request.method == 'GET' or request.method == 'POST' or request.method == 'PUT' or request.method == 'DELETE':
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'OPTIONS, GET, POST, PUT, DELETE'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authentication'
+    root.info(response.json)
+    root.warning('------------------Response--------------------')
+    root.warning('****--------------- %s ----------------****', str(time.asctime(time.localtime(time.time()))))
+    return response
